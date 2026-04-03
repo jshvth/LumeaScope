@@ -17,6 +17,7 @@
 ## Data and API
 
 - `docs/db/schema.md`
+- `docs/db/supabase-setup.md`
 - `docs/api/README.md`
 
 ## Features
