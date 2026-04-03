@@ -1,8 +1,93 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 import { useSession } from '../lib/useSession'
 
 export default function Upload() {
   const { session } = useSession()
+  const [documents, setDocuments] = useState([])
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    if (!session) return
+
+    const loadDocuments = async () => {
+      const { data, error: loadError } = await supabase
+        .from('documents')
+        .select('id,title,status,created_at')
+        .order('created_at', { ascending: false })
+
+      if (loadError) {
+        setError(loadError.message)
+        return
+      }
+
+      setDocuments(data ?? [])
+    }
+
+    loadDocuments()
+  }, [session])
+
+  const handleUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setError('')
+    setSuccess('')
+
+    if (!session) {
+      setError('Please sign in before uploading.')
+      return
+    }
+
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are supported.')
+      return
+    }
+
+    const maxSizeMb = 40
+    if (file.size > maxSizeMb * 1024 * 1024) {
+      setError(`File is too large. Max ${maxSizeMb}MB.`)
+      return
+    }
+
+    setUploading(true)
+
+    const filePath = `${session.user.id}/${Date.now()}-${file.name}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('documents')
+      .upload(filePath, file, { upsert: false })
+
+    if (uploadError) {
+      setError(uploadError.message)
+      setUploading(false)
+      return
+    }
+
+    const { data: doc, error: insertError } = await supabase
+      .from('documents')
+      .insert({
+        user_id: session.user.id,
+        title: file.name,
+        storage_path: filePath,
+        status: 'uploaded',
+      })
+      .select('id,title,status,created_at')
+      .single()
+
+    if (insertError) {
+      setError(insertError.message)
+      setUploading(false)
+      return
+    }
+
+    setDocuments((prev) => [doc, ...prev])
+    setSuccess('Upload completed. Indexing will start shortly.')
+    setUploading(false)
+    event.target.value = ''
+  }
   return (
     <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="rounded-3xl border border-line bg-white p-6 shadow-soft">
@@ -18,6 +103,16 @@ export default function Upload() {
             </Link>
           </div>
         )}
+        {error && (
+          <div className="mt-4 rounded-2xl border border-line bg-sand px-4 py-3 text-xs text-red-600">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mt-4 rounded-2xl border border-line bg-accentSoft px-4 py-3 text-xs text-accent">
+            {success}
+          </div>
+        )}
         <div className="mt-6 rounded-3xl border border-dashed border-line bg-sand p-8 text-center">
           <p className="text-sm font-semibold">Drop a PDF here</p>
           <p className="mt-1 text-xs text-muted">
@@ -29,6 +124,8 @@ export default function Upload() {
               type="file"
               className="hidden"
               disabled={!session}
+              accept="application/pdf"
+              onChange={handleUpload}
             />
             <label
               htmlFor="upload-file"
@@ -38,15 +135,29 @@ export default function Upload() {
                   : 'cursor-not-allowed bg-ink/60'
               }`}
             >
-              Choose file
+              {uploading ? 'Uploading...' : 'Choose file'}
             </label>
           </div>
         </div>
         <div className="mt-6 rounded-2xl border border-line bg-white p-4 text-sm">
-          <p className="font-semibold">Nothing uploaded yet</p>
-          <p className="mt-1 text-xs text-muted">
-            Your documents will appear here with status and progress.
-          </p>
+          <p className="font-semibold">Recent uploads</p>
+          {documents.length === 0 ? (
+            <p className="mt-1 text-xs text-muted">
+              Your documents will appear here with status and progress.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-2 text-xs text-muted">
+              {documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="flex items-center justify-between rounded-xl border border-line bg-sand px-3 py-2"
+                >
+                  <span className="text-ink">{doc.title}</span>
+                  <span className="text-xs text-muted">{doc.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <aside className="rounded-3xl border border-line bg-white p-6 shadow-soft">
