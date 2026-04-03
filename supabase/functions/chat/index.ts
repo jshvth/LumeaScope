@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.203.0/http/server.ts'
 import { supabaseAdmin } from '../_shared/supabase.ts'
 import { embedText, generateAnswer } from '../_shared/hf.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface ChatPayload {
   document_id: string
@@ -9,6 +10,9 @@ interface ChatPayload {
 
 serve(async (req) => {
   try {
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', { headers: corsHeaders })
+    }
     if (req.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 })
     }
@@ -24,7 +28,7 @@ serve(async (req) => {
       await supabaseAdmin.auth.getUser(token)
 
     if (authError || !authData?.user) {
-      return new Response('Unauthorized', { status: 401 })
+      return new Response('Unauthorized', { status: 401, headers: corsHeaders })
     }
 
     const { data: doc, error: docError } = await supabaseAdmin
@@ -34,11 +38,11 @@ serve(async (req) => {
       .single()
 
     if (docError || !doc) {
-      return new Response('Document not found', { status: 404 })
+      return new Response('Document not found', { status: 404, headers: corsHeaders })
     }
 
     if (doc.user_id !== authData.user.id) {
-      return new Response('Forbidden', { status: 403 })
+      return new Response('Forbidden', { status: 403, headers: corsHeaders })
     }
 
     const queryEmbedding = await embedText(payload.message)
@@ -75,13 +79,13 @@ serve(async (req) => {
     }))
 
     return new Response(JSON.stringify({ answer, sources }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })
   }
 })
