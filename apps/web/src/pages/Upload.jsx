@@ -1,10 +1,25 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useSession } from '../lib/useSession'
 
+const sanitizeFilename = (name) => {
+  const normalized = name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  if (!normalized) return 'document.pdf'
+  return normalized.toLowerCase().endsWith('.pdf')
+    ? normalized
+    : `${normalized}.pdf`
+}
+
 export default function Upload() {
   const { session } = useSession()
+  const navigate = useNavigate()
   const [documents, setDocuments] = useState([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -54,7 +69,8 @@ export default function Upload() {
 
     setUploading(true)
 
-    const filePath = `${session.user.id}/${Date.now()}-${file.name}`
+    const safeName = sanitizeFilename(file.name)
+    const filePath = `${session.user.id}/${Date.now()}-${safeName}`
 
     const { error: uploadError } = await supabase.storage
       .from('documents')
@@ -87,6 +103,7 @@ export default function Upload() {
     setSuccess('Upload completed. Indexing will start shortly.')
     setUploading(false)
     event.target.value = ''
+    navigate(`/document?id=${doc.id}`)
   }
   return (
     <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -153,7 +170,15 @@ export default function Upload() {
                   className="flex items-center justify-between rounded-xl border border-line bg-sand px-3 py-2"
                 >
                   <span className="text-ink">{doc.title}</span>
-                  <span className="text-xs text-muted">{doc.status}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted">{doc.status}</span>
+                    <Link
+                      to={`/document?id=${doc.id}`}
+                      className="text-xs font-semibold text-ink"
+                    >
+                      Open
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
