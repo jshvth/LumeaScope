@@ -1,4 +1,8 @@
+import { Link } from 'react-router-dom'
+import { useSession } from '../lib/useSession'
+
 export default function Document() {
+  const { session } = useSession()
   return (
     <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
       <aside className="rounded-3xl border border-line bg-white p-6 shadow-soft">
@@ -13,9 +17,21 @@ export default function Document() {
           <p className="mt-1 text-xs text-muted">
             Upload a PDF to unlock the table of contents and citations.
           </p>
-          <button className="mt-4 rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-ink">
-            Upload document
-          </button>
+          {session ? (
+            <Link
+              to="/upload"
+              className="mt-4 inline-flex rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-ink"
+            >
+              Upload document
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="mt-4 inline-flex rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-ink"
+            >
+              Sign in first
+            </Link>
+          )}
         </div>
         <div className="mt-6">
           <p className="text-xs uppercase tracking-widest text-muted">

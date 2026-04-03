@@ -1,4 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
+import { useSession } from '../lib/useSession'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -7,9 +9,10 @@ const links = [
 ]
 
 export default function Layout() {
+  const { session } = useSession()
   return (
     <div className="min-h-screen bg-sand text-ink">
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink text-sm font-semibold text-white">
@@ -36,6 +39,22 @@ export default function Layout() {
                 {link.label}
               </NavLink>
             ))}
+            {session ? (
+              <button
+                type="button"
+                onClick={() => supabase.auth.signOut()}
+                className="rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-ink"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white"
+              >
+                Sign in
+              </Link>
+            )}
           </nav>
         </header>
 

@@ -3,6 +3,7 @@ import Layout from './components/Layout.jsx'
 import Home from './pages/Home.jsx'
 import Upload from './pages/Upload.jsx'
 import Document from './pages/Document.jsx'
+import Auth from './pages/Auth.jsx'
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="upload" element={<Upload />} />
           <Route path="document" element={<Document />} />
+          <Route path="auth" element={<Auth />} />
         </Route>
       </Routes>
     </BrowserRouter>
