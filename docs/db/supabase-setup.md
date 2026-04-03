@@ -26,6 +26,12 @@ Run `supabase/sql/003_storage.sql`.
 Conventions:
 - Store files under `<user_id>/<filename>` for policy enforcement.
 
+## Step 4: Embeddings + RPC
+
+Run `supabase/sql/004_embeddings.sql` to:
+- set embedding dimension to 384 (HF MiniLM)
+- add `match_document_chunks` RPC for vector search
+
 ## After setup
 
 - Create a `.env` file in the frontend later with Supabase URL and anon key.

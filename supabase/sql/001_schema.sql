@@ -21,7 +21,7 @@ create table if not exists document_chunks (
   page_end int,
   chunk_index int not null,
   content text not null,
-  embedding vector(1536),
+  embedding vector(384),
   created_at timestamptz not null default now()
 );
 

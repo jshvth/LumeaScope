@@ -19,6 +19,7 @@
 - `docs/db/schema.md`
 - `docs/db/supabase-setup.md`
 - `docs/api/README.md`
+- `docs/api/edge-functions.md`
 
 ## Features
 

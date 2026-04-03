@@ -1,91 +1,91 @@
 import { Link } from 'react-router-dom'
 
 const pipelineSteps = [
-  { title: 'Upload', detail: 'Store the PDF securely' },
-  { title: 'Parsing', detail: 'Extract pages and sections' },
-  { title: 'Chunking', detail: 'Split into semantic blocks' },
-  { title: 'Embedding', detail: 'Turn text into vectors' },
-  { title: 'Search', detail: 'Retrieve the best matches' },
-  { title: 'Answer', detail: 'LLM responds with citations' },
+  'Upload',
+  'Parse',
+  'Chunk',
+  'Embed',
+  'Retrieve',
+  'Answer',
 ]
 
 export default function Home() {
   return (
-    <div className="space-y-10">
-      <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-accentSoft px-4 py-1 text-xs font-semibold text-accent">
-            RAG ready workflow
-          </div>
-          <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
-            Turn any PDF into a chat-ready knowledge base in minutes.
-          </h1>
-          <p className="text-base text-muted md:text-lg">
-            Upload manuals, contracts, or audits. LumeaScope builds a vector
-            index, surfaces citations, and lets you ask questions with full
-            traceability.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/upload"
-              className="rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-soft"
-            >
-              Upload document
-            </Link>
-          </div>
-        </div>
-        <div className="relative space-y-6">
-          <div className="absolute -right-6 -top-8 h-32 w-32 rounded-full bg-accentSoft opacity-70 blur-3xl" />
-          <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-              Product snapshot
+    <div className="space-y-8">
+      <section className="relative overflow-hidden rounded-[36px] border border-line bg-white p-8 shadow-card md:p-10">
+        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accentSoft opacity-70 blur-[130px]" />
+        <div className="absolute left-10 top-6 h-24 w-24 rounded-full bg-accent/10 blur-[80px]" />
+
+        <div className="relative grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-line bg-sand px-4 py-1 text-xs font-semibold text-muted">
+              LumeaScope • AI document intelligence
+            </div>
+            <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
+              Find the exact clause in seconds,
+              <span className="text-accent"> with citations.</span>
+            </h1>
+            <p className="max-w-xl text-base text-muted md:text-lg">
+              Turn dense PDFs into a chat-ready knowledge base. Ask questions,
+              get precise answers, and jump to the source instantly.
             </p>
-            <div className="mt-5 space-y-4">
-              <div className="rounded-2xl border border-line bg-sand px-4 py-3 text-sm">
-                <p className="font-semibold">Instant indexing</p>
-                <p className="text-xs text-muted">
-                  PDFs are chunked, embedded, and searchable within minutes.
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/upload"
+                className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white shadow-soft"
+              >
+                Upload your first PDF
+              </Link>
+              <span className="text-xs text-muted">
+                Works with manuals, contracts, audits
+              </span>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="rounded-3xl border border-line bg-sand p-5">
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+                  Answer preview
                 </p>
+                <p className="mt-3 text-sm">
+                  Warranty coverage lasts 24 months from installation, with
+                  on-site service for critical components.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-line bg-sand px-3 py-1 text-[11px] text-muted">
+                    Page 42 • Warranty policy
+                  </span>
+                  <span className="rounded-full border border-line bg-sand px-3 py-1 text-[11px] text-muted">
+                    Page 44 • Coverage scope
+                  </span>
+                </div>
               </div>
-              <div className="rounded-2xl border border-line bg-sand px-4 py-3 text-sm">
-                <p className="font-semibold">Cited answers</p>
-                <p className="text-xs text-muted">
-                  Every response includes traceable sources and page context.
+              <div className="mt-4 rounded-2xl border border-line bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+                  Confidence
                 </p>
-              </div>
-              <div className="rounded-2xl border border-line bg-sand px-4 py-3 text-sm">
-                <p className="font-semibold">Enterprise ready</p>
-                <p className="text-xs text-muted">
-                  Supabase Auth, Storage, and pgvector out of the box.
-                </p>
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="font-semibold">High relevance</span>
+                  <span className="text-xs text-muted">Top‑K = 6</span>
+                </div>
+                <div className="mt-3 h-2 rounded-full bg-line">
+                  <div className="h-2 w-4/5 rounded-full bg-accent" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
 
-      <section className="rounded-3xl border border-line bg-white p-7 shadow-soft">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">How it works</h2>
-          <span className="rounded-full border border-line px-3 py-1 text-xs font-semibold text-muted">
-            RAG pipeline
-          </span>
-        </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-xs">
+        <div className="relative mt-8 flex flex-wrap items-center gap-3 text-xs">
           {pipelineSteps.map((step, index) => (
-            <div
-              key={step.title}
-              className="flex items-center gap-3 rounded-full border border-line bg-sand px-3 py-2"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-sand text-[11px] font-semibold">
+            <div key={step} className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-white text-[11px] font-semibold">
                 {index + 1}
               </span>
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold">{step.title}</span>
-                <span className="text-[10px] text-muted">{step.detail}</span>
-              </div>
+              <span className="font-semibold">{step}</span>
               {index < pipelineSteps.length - 1 && (
-                <span className="text-muted">→</span>
+                <span className="h-px w-6 bg-line" />
               )}
             </div>
           ))}

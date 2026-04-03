@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useSession } from '../lib/useSession'
+import { extractPdfPages } from '../lib/pdf'
 
 const sanitizeFilename = (name) => {
   const normalized = name
@@ -22,6 +23,7 @@ export default function Upload() {
   const navigate = useNavigate()
   const [documents, setDocuments] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [indexing, setIndexing] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -100,10 +102,42 @@ export default function Upload() {
     }
 
     setDocuments((prev) => [doc, ...prev])
-    setSuccess('Upload completed. Indexing will start shortly.')
+    setSuccess('Upload completed. Preparing document for indexing.')
     setUploading(false)
     event.target.value = ''
-    navigate(`/document?id=${doc.id}`)
+
+    try {
+      setIndexing(true)
+      setDocuments((prev) =>
+        prev.map((item) =>
+          item.id === doc.id ? { ...item, status: 'processing' } : item,
+        ),
+      )
+      const pages = await extractPdfPages(file)
+      const { data: ingestData, error: ingestError } =
+        await supabase.functions.invoke('ingest', {
+          body: { document_id: doc.id, pages },
+        })
+
+      if (ingestError) throw ingestError
+
+      setSuccess(
+        `Indexed ${ingestData?.chunks ?? pages.length} chunks. Ready for chat.`,
+      )
+      setDocuments((prev) =>
+        prev.map((item) =>
+          item.id === doc.id ? { ...item, status: 'indexed' } : item,
+        ),
+      )
+    } catch (ingestErr) {
+      setError(
+        ingestErr?.message ??
+          'Indexing failed. Try again or check edge function logs.',
+      )
+    } finally {
+      setIndexing(false)
+      navigate(`/document?id=${doc.id}`)
+    }
   }
   return (
     <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -152,7 +186,11 @@ export default function Upload() {
                   : 'cursor-not-allowed bg-ink/60'
               }`}
             >
-              {uploading ? 'Uploading...' : 'Choose file'}
+              {uploading
+                ? 'Uploading...'
+                : indexing
+                ? 'Indexing...'
+                : 'Choose file'}
             </label>
           </div>
         </div>

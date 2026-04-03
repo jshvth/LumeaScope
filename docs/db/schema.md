@@ -25,7 +25,7 @@
 - page_end (int)
 - chunk_index (int)
 - content (text)
-- embedding (vector)
+- embedding (vector, 384 dims for HF MiniLM)
 - created_at (timestamp)
 
 ## chats
